@@ -16,7 +16,7 @@ def make_sweep_polygon(cx: Int, cy: Int, dist: Double, a: Double): Polygon =
   p.addPoint((cx + cos(a-ha) * far).toInt, (cy + sin(a-ha) * far).toInt)
   p.addPoint((cx + cos(a+ha) * far).toInt, (cy + sin(a+ha) * far).toInt)
   p.addPoint((cx + cos(a+ha) * dist).toInt, (cy + sin(a+ha) * dist).toInt)
-  return p
+  /*return*/ p
 
 /** sentit pikseleiksi */
 def cm2p(x: Double) = (x * 1.0).toInt
