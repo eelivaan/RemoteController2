@@ -36,7 +36,7 @@ object Comm:
 
   def read_data(numBytes: Int): Vector[Byte] =
     val dataBuf = Array.ofDim[Byte](numBytes)
-    val out_data = Buffer[Byte]()
+    val out_data = Buffer[Byte](0x42)
     this.currentSerial.foreach(port =>
       port.readBytes(dataBuf, numBytes) match {
         case numBytesRead if numBytesRead > 0 =>

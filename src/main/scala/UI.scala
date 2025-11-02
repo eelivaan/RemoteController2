@@ -2,8 +2,8 @@ import scala.swing.{FlowPanel, *}
 import scala.swing.event.*
 import javax.swing.{Timer, UIManager}
 import scala.math.*
-import scala.collection.mutable.Buffer
 import java.awt.Polygon
+import java.awt.Font
 import scala.util.Random
 
 val angular_resolution = 3 // astetta
@@ -23,7 +23,7 @@ def cm2p(x: Double) = (x * 1.0).toInt
 
 
 /**
- * Custom Panel that renders Lidar observations
+ * Kustomoitu Panel joka renderöi Lidarin havainnot
  */
 class MyCanvas extends Panel:
   preferredSize = new Dimension(700,600)
@@ -36,18 +36,13 @@ class MyCanvas extends Panel:
     this.measurements(index) = (angleDegrees.toRadians, distCm)
     index = (index + 1) % this.measurements.length
 
-  val debug_bytes = Buffer[Byte]()
-
+  // tämä piirtää grafiikan
   override def paint(g: Graphics2D): Unit =
     super.paint(g)
 
     // taustaväri
     g.setColor(new Color(10,10,10))
     g.fillRect(0, 0, size.width, size.height)
-
-    // debug display
-    g.setColor(new Color(0,100,200))
-    g.drawBytes(this.debug_bytes.toArray, 0, this.debug_bytes.length, 10,20)
 
     val (cx,cy) = (size.width / 2, size.height / 2)
     val t = System.currentTimeMillis() / 1000.0
@@ -77,10 +72,17 @@ class MyCanvas extends Panel:
     g.drawLine(cx,cy, (cx + cos(t)*150).toInt, (cy + sin(t)*150).toInt)
   end paint
 
+  // näppäimistötapahtumat
   listenTo(keys)
   reactions += {
-    case e: KeyPressed if e.key == Key.Escape =>
-      UI.quit()
+    case e: KeyPressed =>
+      e.key match {
+        case Key.Escape =>
+          // lopeta sovellus
+          UI.quit()
+        case _ =>
+          ()
+      }
   }
 
 end MyCanvas
@@ -92,6 +94,7 @@ end MyCanvas
 object UI extends SimpleSwingApplication:
   // tyylikkäämpi teema
   UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName)
+  //UIManager.put("Label.font", new Font("Arial", Font.PLAIN, 14))
 
   // UI
   val panel = BoxPanel(Orientation.Vertical)
@@ -100,6 +103,7 @@ object UI extends SimpleSwingApplication:
   val canvas = new MyCanvas()
   panel.contents += canvas
 
+  // alapaneeli
   val info = Label("No connection")
   val help = Label("Use WASD or Arrow Keys to control")
   val visChooser = ComboBox(Vector("Polygons", "Dots"))
@@ -107,12 +111,25 @@ object UI extends SimpleSwingApplication:
   val panel2 = FlowPanel(info, help, visChooser)
   panel.contents += panel2
 
+  // debug serial monitor
+  val serialText = new TextArea():
+    editable = false
+    wordWrap = true
+    lineWrap = true
+    background = new Color(50,50,50)
+    foreground = new Color(0,255,0)
+  val serialMonitor = new Frame():
+    contents = new ScrollPane(serialText)
+    size = new Dimension(300,300)
+    title = "Serial monitor"
+    visible = true
+
   // avataan yhteys robottiin
   Comm.open_serial()
 
-  // timer that triggers repaint 30 times per second
-  val timer = new Timer(33, Swing.ActionListener { _ => this.onTick() })
-  timer.start()
+  // Timer kutsuu onTick() noin 30 kertaa sekunnissa
+  val tickTimer = new Timer(33, Swing.ActionListener { _ => this.onTick() })
+  tickTimer.start()
 
 
   // pääikkuna (anonyymi luokka johdettu MainFrame:sta)
@@ -130,6 +147,7 @@ object UI extends SimpleSwingApplication:
 
   // callback 30 times per second
   private def onTick() =
+    // connection status
     Comm.currentSerial match {
       case Some(port) if port.isOpen =>
         info.foreground = new Color(0,200,0)
@@ -138,14 +156,18 @@ object UI extends SimpleSwingApplication:
         info.foreground = new Color(250,0,0)
         info.text = "No connection " + opt.map(port => s"(error code ${port.getLastErrorCode})").getOrElse("")
     }
-    if Comm.data_available then
-      canvas.debug_bytes ++= Comm.read_data(1)
+
+    if !serialText.hasFocus then
+    //if Comm.data_available then
+      serialText.text += Comm.read_data(100).map(String.format("0x%X",_)).mkString(" ") + " "
+
     canvas.add_measurement(Random.between(0,360), Random.between(100,500))
+
     canvas.repaint()
   end onTick
 
 
-  // custom cleanup actions
+  // sulje yhteys hallitusti
   override def quit(): Unit =
     println("Quitting...")
     Comm.close_serial()
