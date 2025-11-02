@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="toka">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Comm.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Comm.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/UI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/UI.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -110,7 +112,14 @@
       <option name="presentableId" value="LOCAL−00002" />
       <updated>1762098733424</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL−00003" summary="toka">
+      <option name="closed" value="true" />
+      <created>1762098846897</created>
+      <option name="number" value="LOCAL−00003" />
+      <option name="presentableId" value="LOCAL−00003" />
+      <updated>1762098846897</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

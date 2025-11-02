@@ -6,7 +6,7 @@ import java.awt.Polygon
 import java.awt.Font
 import scala.util.Random
 
-val angular_resolution = 3 // astetta
+val angular_resolution = 2 // astetta
 
 def make_sweep_polygon(cx: Int, cy: Int, dist: Double, a: Double): Polygon =
   val p = Polygon()
@@ -45,7 +45,8 @@ class MyCanvas extends Panel:
     g.fillRect(0, 0, size.width, size.height)
 
     val (cx,cy) = (size.width / 2, size.height / 2)
-    val t = System.currentTimeMillis() / 1000.0
+    //val t = System.currentTimeMillis() / 1000.0
+    val t = this.measurements(max(0,this.index-1))._1
 
     // grid (metrin ruudut)
     g.setColor(new Color(30,30,30))
@@ -66,7 +67,7 @@ class MyCanvas extends Panel:
     // hub
     g.setColor(new Color(100,100,100))
     val (hw,hh) = (cm2p(11) / 2, cm2p(18) / 2)
-    g.drawRoundRect(cx-hw,cy-hh, 2*hw,2*hh, 20,20)
+    g.drawRoundRect(cx-hw,cy-hh, 2*hw,2*hh, 10,10)
     // scan line
     g.setColor(new Color(0,150,0))
     g.drawLine(cx,cy, (cx + cos(t)*150).toInt, (cy + sin(t)*150).toInt)
@@ -80,6 +81,8 @@ class MyCanvas extends Panel:
         case Key.Escape =>
           // lopeta sovellus
           UI.quit()
+        case Key.Space =>
+          Comm.write_data(Vector(0x01))
         case _ =>
           ()
       }
@@ -131,6 +134,8 @@ object UI extends SimpleSwingApplication:
   val tickTimer = new Timer(33, Swing.ActionListener { _ => this.onTick() })
   tickTimer.start()
 
+  var tempCounter = 0
+
 
   // pääikkuna (anonyymi luokka johdettu MainFrame:sta)
   def top = new MainFrame():
@@ -145,7 +150,6 @@ object UI extends SimpleSwingApplication:
     }
 
 
-  // callback 30 times per second
   private def onTick() =
     // connection status
     Comm.currentSerial match {
@@ -156,12 +160,12 @@ object UI extends SimpleSwingApplication:
         info.foreground = new Color(250,0,0)
         info.text = "No connection " + opt.map(port => s"(error code ${port.getLastErrorCode})").getOrElse("")
     }
-
-    if !serialText.hasFocus then
-    //if Comm.data_available then
+    // tulosta vastaanotetut tavut
+    if !serialText.hasFocus && Comm.data_available then
       serialText.text += Comm.read_data(100).map(String.format("0x%X",_)).mkString(" ") + " "
 
-    canvas.add_measurement(Random.between(0,360), Random.between(100,500))
+    canvas.add_measurement(tempCounter, Random.between(150,400))
+    tempCounter = (tempCounter+angular_resolution) % 360
 
     canvas.repaint()
   end onTick

@@ -12,7 +12,7 @@ object Comm:
       println(port.getPortDescription)
 
     SerialPort.getCommPorts.headOption.foreach(port =>
-      // avataan (ensimmäinen läydetty) portti
+      // avataan (ensimmäinen löydetty) portti
       port.openPort(1000)
 
       if port.isOpen then
@@ -25,28 +25,45 @@ object Comm:
         println(s"${RED}" + "Failed to open port\nError code: " + port.getLastErrorCode.toString + s"${RESET}")
     )
 
+
   def close_serial() =
     this.currentSerial.foreach(port =>
       port.closePort()
-      println("port closed")
+      println("port <" + port.getSystemPortName + "> closed")
     )
+
 
   def data_available: Boolean =
     this.currentSerial.exists(port => port.bytesAvailable() > 0)
 
+
   def read_data(numBytes: Int): Vector[Byte] =
-    val dataBuf = Array.ofDim[Byte](numBytes)
-    val out_data = Buffer[Byte](0x42)
+    val out_data = Buffer[Byte]()
+
     this.currentSerial.foreach(port =>
+      val dataBuf = Array.ofDim[Byte](numBytes)
       port.readBytes(dataBuf, numBytes) match {
         case numBytesRead if numBytesRead > 0 =>
-          println("data read: " + dataBuf.map(_.toChar).mkString)
+          println(s"$numBytesRead bytes read")
           for i <- (0 to numBytesRead) do out_data += dataBuf(i)
         case 0 =>
           println("no data to read")
         case -1 =>
-          println(s"${RED}error reading data${RESET}")
+          println(s"${RED}failed to read data (error code ${port.getLastErrorCode})${RESET}")
       })
+
     out_data.toVector
+
+
+  def write_data(data: Vector[Byte]): Boolean =
+    this.currentSerial.exists(port =>
+      port.writeBytes(data.toArray, data.length) match {
+        case numBytesWritten if numBytesWritten >= 0 =>
+          println(s"$numBytesWritten bytes written")
+          true
+        case -1 =>
+          println(s"${RED}failed to write data (error code ${port.getLastErrorCode})${RESET}")
+          false
+      })
 
 end Comm
