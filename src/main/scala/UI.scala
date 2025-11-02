@@ -8,14 +8,14 @@ import scala.util.Random
 
 val angular_resolution = 2 // astetta
 
-def make_sweep_polygon(cx: Int, cy: Int, dist: Double, a: Double): Polygon =
+def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double): Polygon =
   val p = Polygon()
   val ha = (angular_resolution / 2.0).toRadians + 0.01
   val far = 800
-  p.addPoint((cx + cos(a-ha) * dist).toInt, (cy + sin(a-ha) * dist).toInt)
+  p.addPoint((cx + cos(a-ha) * near).toInt, (cy + sin(a-ha) * near).toInt)
   p.addPoint((cx + cos(a-ha) * far).toInt, (cy + sin(a-ha) * far).toInt)
   p.addPoint((cx + cos(a+ha) * far).toInt, (cy + sin(a+ha) * far).toInt)
-  p.addPoint((cx + cos(a+ha) * dist).toInt, (cy + sin(a+ha) * dist).toInt)
+  p.addPoint((cx + cos(a+ha) * near).toInt, (cy + sin(a+ha) * near).toInt)
   /*return*/ p
 
 /** sentit pikseleiksi */
