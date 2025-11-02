@@ -42,6 +42,7 @@ void loop()
 
   if (transmissionStatus) {
     Serial.write(0x42);
+    Serial.print("tekstiä");
   }
 
   /*if (radio.available()) {

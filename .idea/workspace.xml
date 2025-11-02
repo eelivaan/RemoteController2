@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="toka">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Comm.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Comm.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/UI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/UI.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RadioReceiver.ino" beforeDir="false" afterPath="$PROJECT_DIR$/arduino/RadioReceiver/RadioReceiver.ino" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +63,12 @@
     "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\eeli\Documents\OmatScalat\RemoteController\arduino\RadioReceiver" />
+      <recent name="C:\Users\eeli\Documents\OmatScalat\RemoteController\arduino" />
+    </key>
+  </component>
   <component name="RunManager" selected="Application.UI">
     <configuration name="UI" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="UI" />
@@ -119,7 +124,14 @@
       <option name="presentableId" value="LOCAL−00003" />
       <updated>1762098846897</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL−00004" summary="toka">
+      <option name="closed" value="true" />
+      <created>1762101746689</created>
+      <option name="number" value="LOCAL−00004" />
+      <option name="presentableId" value="LOCAL−00004" />
+      <updated>1762101746691</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
