@@ -10,7 +10,7 @@ val angular_resolution = 2 // astetta
 
 def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double): Polygon =
   val p = Polygon()
-  val ha = (angular_resolution / 2.0).toRadians + 0.01
+  val ha = (angular_resolution / 2.0).toRadians + 0.001
   val far = 800
   p.addPoint((cx + cos(a-ha) * near).toInt, (cy + sin(a-ha) * near).toInt)
   p.addPoint((cx + cos(a-ha) * far).toInt, (cy + sin(a-ha) * far).toInt)
@@ -82,7 +82,7 @@ class MyCanvas extends Panel:
           // lopeta sovellus
           UI.quit()
         case Key.Space =>
-          Comm.write_data(Vector(0x01))
+          Comm.write_data(Comm.START_SCAN)
         case _ =>
           ()
       }
@@ -174,7 +174,7 @@ object UI extends SimpleSwingApplication:
   // sulje yhteys hallitusti
   override def quit(): Unit =
     println("Quitting...")
-    Comm.write_data(Vector(0x02))
+    Comm.write_data(Comm.STOP)
     Comm.close_serial()
     super.quit()
 

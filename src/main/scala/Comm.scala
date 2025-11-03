@@ -3,9 +3,20 @@ import Console.{GREEN, RED, RESET}
 import scala.collection.mutable.Buffer
 import scala.io.StdIn.readLine
 
+// reinterpret cast
+def byteToInt(x: Byte): Int = if x < 0 then 256 + x.toInt else x.toInt
+def intToByte(x: Int): Byte = x.toByte
+
+
 object Comm:
   /** Tällä hetkellä auki oleva portti tai None */
   var currentSerial: Option[SerialPort] = None
+
+  // komennot, huom:
+  // java Byte = 8 bit signed int [-128 127]
+  // Arduino Byte = 8 bit unsigned int [0 255]
+  val START_SCAN = Vector[Int](0xA5, 0x20)
+  val STOP = Vector[Int](0xA5, 0x25)
 
   def open_serial() =
     println("Available ports:")
@@ -44,15 +55,15 @@ object Comm:
     this.currentSerial.exists(port => port.bytesAvailable() > 0)
 
 
-  def read_data(numBytes: Int): Vector[Byte] =
-    val out_data = Buffer[Byte]()
+  def read_data(numBytes: Int): Vector[Int] =
+    val out_data = Buffer[Int]()
 
     this.currentSerial.foreach(port =>
       val dataBuf = Array.ofDim[Byte](numBytes)
       port.readBytes(dataBuf, numBytes) match {
         case numBytesRead if numBytesRead > 0 =>
           println(s"<- $numBytesRead bytes read")
-          for i <- (0 to numBytesRead) do out_data += dataBuf(i)
+          for i <- (0 to numBytesRead) do out_data += byteToInt(dataBuf(i))
         case 0 =>
           println("no data to read")
         case -1 =>
@@ -62,9 +73,10 @@ object Comm:
     out_data.toVector
 
 
-  def write_data(data: Vector[Byte]): Boolean =
+  def write_data(data: Vector[Int]): Boolean =
     this.currentSerial.exists(port =>
-      port.writeBytes(data.toArray, data.length) match {
+      val byteArray = data.map[Byte](x => intToByte(x)).toArray
+      port.writeBytes(byteArray, byteArray.length) match {
         case numBytesWritten if numBytesWritten >= 0 =>
           println(s"-> $numBytesWritten bytes written")
           true

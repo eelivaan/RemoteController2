@@ -20,7 +20,7 @@ const byte addressR[6] = "00001";
 const byte addressW[6] = "00002";
 #endif
 
-bool commStatus = false;
+bool bScanning = false;
 
 
 void setup() 
@@ -43,18 +43,26 @@ void loop()
 {
   if (Serial.available() > 0) 
   {
-    char buffer[64]; // ESP32 Serial Data Cache is 64 bytes
-    const int bytes_read = Serial.readBytes(buffer, 64);
-    if (bytes_read > 0)
-    {
-      commStatus = (buffer[0] == 0x01);
+    //char buffer[64]; // ESP32 Serial Data Cache is 64 bytes
+    //const int bytes_read = Serial.readBytes(buffer, 64);
+    switch (Serial.read()) {
+    case 0x20:
+      bScanning = true;
+      break;
+    case 0x25:
+      bScanning = false;
+      break;
+    default:
+      break;
     }
   }
 
-  if (commStatus) 
+  if (bScanning)
   {
-    Serial.write(0x42);
-    Serial.print("tekstiä");
+    const byte buffer[] = { 0xA5, 0x5A, 0x05, 0x00, 0x00 };
+    Serial.write(buffer, 5);
+    //Serial.print("tekstiä");
+    delay(900); // ms
   }
 
 #ifdef ENABLE_RADIO
@@ -73,6 +81,6 @@ void loop()
   }*/
 #endif
 
-  delay(1000); // ms
+  delay(10); // ms
 }
 
