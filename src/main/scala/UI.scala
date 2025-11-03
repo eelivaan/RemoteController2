@@ -50,8 +50,8 @@ class MyCanvas extends Panel:
 
     // grid (metrin ruudut)
     g.setColor(new Color(30,30,30))
-    for x <- (0 to 10) do g.drawLine(x * cm2p(100), 0, x * cm2p(100), size.height)
-    for y <- (0 to 10) do g.drawLine(0, y * cm2p(100), size.width, y * cm2p(100))
+    for x <- (-10 to 10) do g.drawLine(cx + x * cm2p(100), 0, cx + x * cm2p(100), size.height)
+    for y <- (-10 to 10) do g.drawLine(0, cy + y * cm2p(100), size.width, cy + y * cm2p(100))
 
     // havainnot
     g.setColor(new Color(100,100,100))
@@ -174,6 +174,7 @@ object UI extends SimpleSwingApplication:
   // sulje yhteys hallitusti
   override def quit(): Unit =
     println("Quitting...")
+    Comm.write_data(Vector(0x02))
     Comm.close_serial()
     super.quit()
 

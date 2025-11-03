@@ -1,6 +1,7 @@
 import com.fazecast.jSerialComm.*
 import Console.{GREEN, RED, RESET}
 import scala.collection.mutable.Buffer
+import scala.io.StdIn.readLine
 
 object Comm:
   /** Tällä hetkellä auki oleva portti tai None */
@@ -8,11 +9,17 @@ object Comm:
 
   def open_serial() =
     println("Available ports:")
-    for port <- SerialPort.getCommPorts do
-      println(port.getPortDescription)
+    val availPorts = SerialPort.getCommPorts
+    for (port,i) <- availPorts.zipWithIndex do
+      println(s"[$i] " + port.getPortDescription)
 
-    SerialPort.getCommPorts.headOption.foreach(port =>
-      // avataan (ensimmäinen löydetty) portti
+    // pyydä käyttäjää valitsemaan portti
+    var selectedPort = -1
+    if availPorts.nonEmpty then
+      selectedPort = readLine("Select port: ").toInt
+
+    availPorts.lift(selectedPort).foreach(port =>
+      // avataan valittu portti
       port.openPort(1000)
 
       if port.isOpen then
@@ -44,7 +51,7 @@ object Comm:
       val dataBuf = Array.ofDim[Byte](numBytes)
       port.readBytes(dataBuf, numBytes) match {
         case numBytesRead if numBytesRead > 0 =>
-          println(s"$numBytesRead bytes read")
+          println(s"<- $numBytesRead bytes read")
           for i <- (0 to numBytesRead) do out_data += dataBuf(i)
         case 0 =>
           println("no data to read")
@@ -59,7 +66,7 @@ object Comm:
     this.currentSerial.exists(port =>
       port.writeBytes(data.toArray, data.length) match {
         case numBytesWritten if numBytesWritten >= 0 =>
-          println(s"$numBytesWritten bytes written")
+          println(s"-> $numBytesWritten bytes written")
           true
         case -1 =>
           println(s"${RED}failed to write data (error code ${port.getLastErrorCode})${RESET}")
