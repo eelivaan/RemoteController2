@@ -1,9 +1,10 @@
 import scala.swing.{FlowPanel, *}
 import scala.swing.event.*
 import javax.swing.{Timer, UIManager}
+import javax.imageio.ImageIO
+import java.awt.{Font, Image, Polygon}
+import java.io.File
 import scala.math.*
-import java.awt.Polygon
-import java.awt.Font
 import scala.util.Random
 
 val angular_resolution = 2 // astetta
@@ -28,6 +29,7 @@ def cm2p(x: Double) = (x * 1.0).toInt
 class MyCanvas extends Panel:
   preferredSize = new Dimension(700,600)
   focusable = true
+  val carImg = ImageIO.read(new File("car.png"))
 
   // viimeisimmät mittaukset "rengaspuskurina"
   private val measurements: Array[(Double,Double)] = Array.fill(360)((0,0))
@@ -64,10 +66,12 @@ class MyCanvas extends Panel:
                      (cy + sin(angle) * cm2p(dist)).toInt - 5, 10,10)
       }
 
-    // hub
+    // robotin kuva
     g.setColor(new Color(100,100,100))
     val (hw,hh) = (cm2p(11) / 2, cm2p(18) / 2)
-    g.drawRoundRect(cx-hw,cy-hh, 2*hw,2*hh, 10,10)
+    //g.drawRoundRect(cx-hw,cy-hh, 2*hw,2*hh, 10,10)
+    g.drawImage(carImg, cx-hw,cy-hh, hw*2,hh*2, null)
+
     // scan line
     g.setColor(new Color(0,150,0))
     g.drawLine(cx,cy, (cx + cos(t)*150).toInt, (cy + sin(t)*150).toInt)
