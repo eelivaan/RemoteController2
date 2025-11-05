@@ -16,17 +16,18 @@ object Comm:
   // java Byte = 8 bit signed int [-128 127]
   // Arduino Byte = 8 bit unsigned int [0 255]
   val START_SCAN = Vector[Int](0xA5, 0x20)
+  val START_SCAN_RESPONSE = Vector[Int](0xA5, 0x5A, 0x05, 0x00, 0x00, 0x40, 0x81)
   val STOP = Vector[Int](0xA5, 0x25)
 
   def open_serial() =
     println("Available ports:")
     val availPorts = SerialPort.getCommPorts
     for (port,i) <- availPorts.zipWithIndex do
-      println(s"[$i] " + port.getPortDescription)
+      println(s"[$i] " + port.getDescriptivePortName)
 
     // pyydä käyttäjää valitsemaan portti
-    var selectedPort = -1
-    if availPorts.nonEmpty then
+    var selectedPort = 0
+    if availPorts.length > 1 then
       selectedPort = readLine("Select port: ").toInt
 
     availPorts.lift(selectedPort).foreach(port =>
@@ -62,8 +63,8 @@ object Comm:
       val dataBuf = Array.ofDim[Byte](numBytes)
       port.readBytes(dataBuf, numBytes) match {
         case numBytesRead if numBytesRead > 0 =>
-          println(s"<- $numBytesRead bytes read")
-          for i <- (0 to numBytesRead) do out_data += byteToInt(dataBuf(i))
+          //println(s"<- $numBytesRead bytes read")
+          for i <- (0 until numBytesRead) do out_data += byteToInt(dataBuf(i))
         case 0 =>
           println("no data to read")
         case -1 =>

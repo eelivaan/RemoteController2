@@ -6,6 +6,7 @@ import java.awt.{Font, Image, Polygon}
 import java.io.File
 import scala.math.*
 import scala.util.Random
+import scala.collection.mutable.Buffer
 
 val angular_resolution = 2 // astetta
 
@@ -18,6 +19,10 @@ def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double): Polygon =
   p.addPoint((cx + cos(a+ha) * far).toInt, (cy + sin(a+ha) * far).toInt)
   p.addPoint((cx + cos(a+ha) * near).toInt, (cy + sin(a+ha) * near).toInt)
   /*return*/ p
+
+def seqMatch(a: Seq[Int], b: Seq[Int]): Boolean =
+  a.length >= b.length &&
+  a.zipWithIndex.forall( (x,i) => (x == b(i)) )
 
 /** sentit pikseleiksi */
 def cm2p(x: Double) = (x * 1.0).toInt
@@ -57,7 +62,7 @@ class MyCanvas extends Panel:
 
     // havainnot
     g.setColor(new Color(100,100,100))
-    for (angle,dist) <- this.measurements do if dist > 10 then
+    for (angle,dist) <- this.measurements do if dist > 0 then
       UI.visChooser.selection.index match {
         case 0 =>
           g.fillPolygon(make_sweep_polygon(cx, cy, cm2p(dist), angle))
@@ -129,7 +134,6 @@ object UI extends SimpleSwingApplication:
     contents = new ScrollPane(serialText)
     size = new Dimension(300,300)
     title = "Serial monitor"
-    visible = true
 
   // avataan yhteys robottiin
   Comm.open_serial()
@@ -139,7 +143,9 @@ object UI extends SimpleSwingApplication:
   tickTimer.start()
 
   var tempCounter = 0
-
+  serialMonitor.visible = true
+  var dataCache = Buffer[Int]()
+  var scanStarted = false
 
   // pääikkuna (anonyymi luokka johdettu MainFrame:sta)
   def top = new MainFrame():
@@ -165,11 +171,29 @@ object UI extends SimpleSwingApplication:
         info.text = "No connection " + opt.map(port => s"(error code ${port.getLastErrorCode})").getOrElse("")
     }
     // tulosta vastaanotetut tavut
-    if !serialText.hasFocus && Comm.data_available then
-      serialText.text += Comm.read_data(100).map(String.format("0x%X",_)).mkString(" ") + " "
+    if Comm.data_available then
+      val received_data = Comm.read_data(100)
+      if !serialText.hasFocus then
+        serialText.text += received_data.map(String.format("0x%X",_)).mkString(" ") + " "
+      // lue ja tulkitse saapuva data
+      dataCache ++= received_data
+      if !scanStarted then
+        if seqMatch(dataCache.take(7).toVector, Comm.START_SCAN_RESPONSE) then
+          println("Scan started")
+          dataCache = dataCache.drop(7)
+          scanStarted = true
+      else
+        // lue skannauspaketteja niin monta kuin löytyy
+        while scanStarted && dataCache.length >= 5 do
+          val scanPacket = dataCache.take(5)
+          dataCache = dataCache.drop(5)
+          val angledeg: Int = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64
+          val distmm: Int = (scanPacket(4)<<8 | scanPacket(3)) / 4
+          canvas.add_measurement(angledeg, distmm / 10.0)
+          //println(s"scan ${angledeg}deg ${distmm}mm")
 
-    canvas.add_measurement(tempCounter, Random.between(150,400))
-    tempCounter = (tempCounter+angular_resolution) % 360
+    //canvas.add_measurement(tempCounter, Random.between(150,400))
+    //tempCounter = (tempCounter+angular_resolution) % 360
 
     canvas.repaint()
   end onTick

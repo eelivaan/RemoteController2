@@ -21,7 +21,7 @@ const byte addressW[6] = "00002";
 #endif
 
 bool bScanning = false;
-
+int scanAngle = 0;
 
 void setup() 
 {
@@ -64,8 +64,8 @@ void loop()
   if (bScanning)
   {
     // emulate Lidar scan data packets
-    unsigned short angledeg = 90 * 64;
-    unsigned short distmm = 100 * 4;
+    unsigned short angledeg = scanAngle * 64;
+    unsigned short distmm = random(1000,3000) * 4;
     byte v0 = 0x00<<2 | 0x00<<1 | 0x01;
     byte v1 = angledeg<<1 | 0x01;
     byte v2 = angledeg>>7;
@@ -74,7 +74,8 @@ void loop()
     const byte buffer[] = {v0,v1,v2,v3,v4};
     Serial.write(buffer, 5);
     //Serial.print("tekstiä");
-    delay(900); // ms
+    delay(50); // ms
+    scanAngle = (scanAngle + 2) % 360;
   }
 
 #ifdef ENABLE_RADIO
