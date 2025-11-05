@@ -77,6 +77,7 @@ object Comm:
   def write_data(data: Vector[Int]): Boolean =
     this.currentSerial.exists(port =>
       val byteArray = data.map[Byte](x => intToByte(x)).toArray
+      UI.serialText.text += "-> send " + data.map(String.format("0x%X",_)).mkString(" ") + "\n"
       port.writeBytes(byteArray, byteArray.length) match {
         case numBytesWritten if numBytesWritten >= 0 =>
           println(s"-> $numBytesWritten bytes written")

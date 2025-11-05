@@ -39,6 +39,23 @@ void setup()
 }
 
 
+void sendTestScanPacket()
+{
+  unsigned short angledeg = scanAngle * 64;
+  unsigned short distmm = random(1000,3000) * 4;
+  byte v0 = 0x00<<2 | 0x00<<1 | 0x01;
+  byte v1 = angledeg<<1 | 0x01;
+  byte v2 = angledeg>>7;
+  byte v3 = distmm;
+  byte v4 = distmm>>8;
+  const byte buffer[] = {v0,v1,v2,v3,v4};
+  Serial.write(buffer, 5);
+  //Serial.print("tekstiä");
+  delay(50); // ms
+  scanAngle = (scanAngle + 2) % 360;
+}
+
+
 void loop()
 {
   if (Serial.available() > 0) 
@@ -64,18 +81,7 @@ void loop()
   if (bScanning)
   {
     // emulate Lidar scan data packets
-    unsigned short angledeg = scanAngle * 64;
-    unsigned short distmm = random(1000,3000) * 4;
-    byte v0 = 0x00<<2 | 0x00<<1 | 0x01;
-    byte v1 = angledeg<<1 | 0x01;
-    byte v2 = angledeg>>7;
-    byte v3 = distmm;
-    byte v4 = distmm>>8;
-    const byte buffer[] = {v0,v1,v2,v3,v4};
-    Serial.write(buffer, 5);
-    //Serial.print("tekstiä");
-    delay(50); // ms
-    scanAngle = (scanAngle + 2) % 360;
+    sendTestScanPacket();
   }
 
 #ifdef ENABLE_RADIO

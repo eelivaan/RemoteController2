@@ -132,7 +132,7 @@ object UI extends SimpleSwingApplication:
     foreground = new Color(0,255,0)
   val serialMonitor = new Frame():
     contents = new ScrollPane(serialText)
-    size = new Dimension(300,300)
+    size = new Dimension(500,300)
     title = "Serial monitor"
 
   // avataan yhteys robottiin
@@ -182,7 +182,7 @@ object UI extends SimpleSwingApplication:
           println("Scan started")
           dataCache = dataCache.drop(7)
           scanStarted = true
-      else
+      if scanStarted then
         // lue skannauspaketteja niin monta kuin löytyy
         while scanStarted && dataCache.length >= 5 do
           val scanPacket = dataCache.take(5)
@@ -190,6 +190,9 @@ object UI extends SimpleSwingApplication:
           val angledeg: Int = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64
           val distmm: Int = (scanPacket(4)<<8 | scanPacket(3)) / 4
           canvas.add_measurement(angledeg, distmm / 10.0)
+
+          //if !serialText.hasFocus then
+          //  serialText.text += s"(${angledeg} deg ${distmm} mm)\n"
           //println(s"scan ${angledeg}deg ${distmm}mm")
 
     //canvas.add_measurement(tempCounter, Random.between(150,400))
