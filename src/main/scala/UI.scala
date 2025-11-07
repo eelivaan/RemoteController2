@@ -5,8 +5,6 @@ import javax.imageio.ImageIO
 import java.awt.{Font, Image, Polygon}
 import java.io.File
 import scala.math.*
-import scala.util.Random
-import scala.collection.mutable.Buffer
 
 val angular_resolution = 2 // astetta
 
@@ -20,13 +18,13 @@ def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double): Polygon =
   p.addPoint((cx + cos(a+ha) * near).toInt, (cy + sin(a+ha) * near).toInt)
   /*return*/ p
 
-def seqMatch(a: Seq[Int], b: Seq[Int]): Boolean =
-  a.length >= b.length &&
-  a.zipWithIndex.forall( (x,i) => (x == b(i)) )
-
 /** sentit pikseleiksi */
 def cm2p(x: Double) = (x * 1.0).toInt
 
+val controlMap = Map[Key.Value, Char](
+  Key.W -> 'w', Key.Up -> 'w',
+  Key.S -> 's', Key.Down -> 's',
+)
 
 /**
  * Kustomoitu Panel joka renderöi Lidarin havainnot
@@ -43,7 +41,7 @@ class MyCanvas extends Panel:
     this.measurements(index) = (angleDegrees.toRadians, distCm)
     index = (index + 1) % this.measurements.length
 
-  // tämä piirtää grafiikan
+  //noinspection IllegalNull
   override def paint(g: Graphics2D): Unit =
     super.paint(g)
 
@@ -92,8 +90,10 @@ class MyCanvas extends Panel:
           UI.quit()
         case Key.Space =>
           Comm.write_data(Comm.START_SCAN)
-        case _ =>
-          ()
+        case anyKey =>
+          controlMap.get(anyKey).foreach(
+            char => Comm.write_data(Vector(char.toInt))
+          )
       }
   }
 
@@ -132,7 +132,7 @@ object UI extends SimpleSwingApplication:
     foreground = new Color(0,255,0)
   val serialMonitor = new Frame():
     contents = new ScrollPane(serialText)
-    size = new Dimension(500,300)
+    size = new Dimension(500,600)
     title = "Serial monitor"
 
   // avataan yhteys robottiin
@@ -144,8 +144,7 @@ object UI extends SimpleSwingApplication:
 
   var tempCounter = 0
   serialMonitor.visible = true
-  var dataCache = Buffer[Int]()
-  var scanStarted = false
+  var bufferedSerialText: String = ""
 
   // pääikkuna (anonyymi luokka johdettu MainFrame:sta)
   def top = new MainFrame():
@@ -165,35 +164,36 @@ object UI extends SimpleSwingApplication:
     Comm.currentSerial match {
       case Some(port) if port.isOpen =>
         info.foreground = new Color(0,200,0)
-        info.text = port.getPortDescription + " connected"
+        info.text = port.getDescriptivePortName + " connected"
       case opt =>
         info.foreground = new Color(250,0,0)
         info.text = "No connection " + opt.map(port => s"(error code ${port.getLastErrorCode})").getOrElse("")
     }
-    // tulosta vastaanotetut tavut
-    if Comm.data_available then
-      val received_data = Comm.read_data(100)
-      if !serialText.hasFocus then
-        serialText.text += received_data.map(String.format("0x%X",_)).mkString(" ") + " "
-      // lue ja tulkitse saapuva data
-      dataCache ++= received_data
-      if !scanStarted then
-        if seqMatch(dataCache.take(7).toVector, Comm.START_SCAN_RESPONSE) then
-          println("Scan started")
-          dataCache = dataCache.drop(7)
-          scanStarted = true
-      if scanStarted then
-        // lue skannauspaketteja niin monta kuin löytyy
-        while scanStarted && dataCache.length >= 5 do
-          val scanPacket = dataCache.take(5)
-          dataCache = dataCache.drop(5)
+
+    // vastaanota dataa Serialista
+    if Comm.data_available && Comm.read_data(100) then
+      mprint("") // päivitys
+      if !VirtualCar.scanning then
+        // etsi scan response
+        Comm.dataCache.sliding(7).indexOf(Comm.START_SCAN_RESPONSE) match {
+          case index if index >= 0 =>
+            VirtualCar.scanning = true
+            println("Scan start confirmed")
+            mprint( Comm.dataCache.take(index + 7) )
+            Comm.dataCache.dropInPlace(index + 7)
+            mprint(" (scan started)\n")
+          case _ =>
+            ()
+        }
+      if VirtualCar.scanning then
+        // lue ja parsi skannauspaketteja niin monta kuin löytyy
+        while Comm.dataCache.length >= 5 do
+          val scanPacket = Comm.dataCache.take(5); Comm.dataCache.dropInPlace(5)
           val angledeg: Int = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64
           val distmm: Int = (scanPacket(4)<<8 | scanPacket(3)) / 4
+          mprint( scanPacket )
+          mprint(s" (${angledeg} deg ${distmm} mm)\n")
           canvas.add_measurement(angledeg, distmm / 10.0)
-
-          //if !serialText.hasFocus then
-          //  serialText.text += s"(${angledeg} deg ${distmm} mm)\n"
-          //println(s"scan ${angledeg}deg ${distmm}mm")
 
     //canvas.add_measurement(tempCounter, Random.between(150,400))
     //tempCounter = (tempCounter+angular_resolution) % 360
@@ -205,9 +205,23 @@ object UI extends SimpleSwingApplication:
   // sulje yhteys hallitusti
   override def quit(): Unit =
     println("Quitting...")
-    Comm.write_data(Comm.STOP)
+    Comm.write_data(Comm.STOP_SCAN)
+    println("Scan stopped")
     Comm.close_serial()
     super.quit()
+
+
+  /** print to monitor */
+  def mprint(input: Iterable[Int] | String): Unit =
+    if serialMonitor.visible then
+      input match {
+        case bytes: Iterable[Int] =>
+          bufferedSerialText += byteString(bytes)
+        case str: String =>
+          bufferedSerialText += str
+      }
+      if !serialText.hasFocus then
+        serialText.text = bufferedSerialText + byteString(Comm.dataCache)
 
 end UI
 
