@@ -6,7 +6,7 @@ import java.awt.{Font, Image, Polygon}
 import java.io.File
 import scala.math.*
 
-val angular_resolution = 2 // astetta
+val angular_resolution: Double = 1.0 // astetta
 
 def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double): Polygon =
   val p = Polygon()
@@ -18,12 +18,11 @@ def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double): Polygon =
   p.addPoint((cx + cos(a+ha) * near).toInt, (cy + sin(a+ha) * near).toInt)
   /*return*/ p
 
-/** sentit pikseleiksi */
-def cm2p(x: Double) = (x * 1.0).toInt
-
 val controlMap = Map[Key.Value, Char](
   Key.W -> 'w', Key.Up -> 'w',
   Key.S -> 's', Key.Down -> 's',
+  Key.A -> 'a', Key.Left -> 'a',
+  Key.D -> 'd', Key.Right -> 'd',
 )
 
 /**
@@ -33,13 +32,17 @@ class MyCanvas extends Panel:
   preferredSize = new Dimension(700,600)
   focusable = true
   val carImg = ImageIO.read(new File("car.png"))
+  var mapScale = 1.0
 
   // viimeisimmät mittaukset "rengaspuskurina"
   private val measurements: Array[(Double,Double)] = Array.fill(360)((0,0))
   private var index = 0
   def add_measurement(angleDegrees: Double, distCm: Double) =
-    this.measurements(index) = (angleDegrees.toRadians, distCm)
+    this.measurements(index) = ((angleDegrees - 90).toRadians, distCm)
     index = (index + 1) % this.measurements.length
+
+  /** sentit pikseleiksi */
+  def cm2p(x: Double) = (x * mapScale).toInt
 
   //noinspection IllegalNull
   override def paint(g: Graphics2D): Unit =
@@ -50,8 +53,6 @@ class MyCanvas extends Panel:
     g.fillRect(0, 0, size.width, size.height)
 
     val (cx,cy) = (size.width / 2, size.height / 2)
-    //val t = System.currentTimeMillis() / 1000.0
-    val t = this.measurements(max(0,this.index-1))._1
 
     // grid (metrin ruudut)
     g.setColor(new Color(30,30,30))
@@ -65,8 +66,8 @@ class MyCanvas extends Panel:
         case 0 =>
           g.fillPolygon(make_sweep_polygon(cx, cy, cm2p(dist), angle))
         case 1 =>
-          g.fillOval((cx + cos(angle) * cm2p(dist)).toInt - 5,
-                     (cy + sin(angle) * cm2p(dist)).toInt - 5, 10,10)
+          g.drawOval((cx + cos(angle) * cm2p(dist)).toInt - 5,
+                     (cy + sin(angle) * cm2p(dist)).toInt - 5, 5,5)
       }
 
     // robotin kuva
@@ -76,25 +77,40 @@ class MyCanvas extends Panel:
     g.drawImage(carImg, cx-hw,cy-hh, hw*2,hh*2, null)
 
     // scan line
+    //val t = System.currentTimeMillis() / 1000.0
+    val t = this.measurements(max(0,this.index-1))._1
     g.setColor(new Color(0,150,0))
-    g.drawLine(cx,cy, (cx + cos(t)*150).toInt, (cy + sin(t)*150).toInt)
+    g.drawLine(cx,cy, (cx + cos(t)*200).toInt, (cy + sin(t)*200).toInt)
   end paint
 
   // näppäimistötapahtumat
-  listenTo(keys)
+  listenTo(keys, mouse.wheel)
   reactions += {
-    case e: KeyPressed =>
-      e.key match {
+    case KeyPressed(_, key, _,_) =>
+      // ajokomento
+      if VirtualCar.curDriveCommand.isEmpty then
+        controlMap.get(key).foreach(char =>
+          Comm.write_data(Vector(0x01, char.toInt))
+          VirtualCar.curDriveCommand = Some(char)
+        )
+
+    case KeyReleased(_, key, _,_) =>
+      key match {
         case Key.Escape =>
           // lopeta sovellus
           UI.quit()
         case Key.Space =>
           Comm.write_data(Comm.START_SCAN)
         case anyKey =>
-          controlMap.get(anyKey).foreach(
-            char => Comm.write_data(Vector(char.toInt))
+          // ajon pysäytys
+          controlMap.get(anyKey).foreach(char =>
+            Comm.write_data(Vector(0x02))
+            VirtualCar.curDriveCommand = None
           )
       }
+
+    case MouseWheelMoved(_,_,_, value) =>
+      this.mapScale *= 1.0 + value*0.05
   }
 
 end MyCanvas
@@ -152,10 +168,12 @@ object UI extends SimpleSwingApplication:
     contents = panel
     minimumSize = new Dimension(500,400)
     centerOnScreen()
-    listenTo(this)
+    listenTo(this, canvas.keys)
     reactions += {
       case e: WindowClosing =>
         quit()
+      case KeyReleased(_,key,_,_) if key == Key.Enter =>
+        serialMonitor.visible = !serialMonitor.visible
     }
 
 

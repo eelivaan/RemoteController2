@@ -9,8 +9,16 @@ def intToByte(x: Int): Byte = x.toByte
 
 def byteString(x: Iterable[Int]) = x.map(v => f"0x${v}%02X").mkString(" ")
 
-val demo = ListBuffer[Int](1,2,3,4, 0xA5, 0x5A, 0x05, 0x00, 0x00, 0x40, 0x81,
-  0,64<<1|1,0,100,0, 0x08)
+val demo = ListBuffer[Int]() /**/
+  ++ ListBuffer[Int](1,2,3,4,
+  0xA5, 0x5A, 0x05, 0x00, 0x00, 0x40, 0x81,
+  0,1*64<<1|1,0,100*40,0,
+  0,45*64<<1|1,0,150*40,0,
+  0,90*64<<1|1,0,200*40,0)
+  ++ (for i <- (180 to 270) yield Vector(0,i*64<<1|1,0,250*40,0)).flatten
+  ++ ListBuffer(0x08, 0x09)
+/**/
+
 
 object Comm:
   /** Tällä hetkellä auki oleva portti tai None */
@@ -19,12 +27,15 @@ object Comm:
   /** Bufferoitu data, päivitetään aina read_data():ssa */
   val dataCache = ListBuffer[Int]()
 
-  // komennot, huom:
+  // huom:
   // java Byte = 8 bit signed int [-128 127]
   // Arduino Byte = 8 bit unsigned int [0 255]
+
+  // komennot Lidarille
   val START_SCAN = Vector[Int](0xA5, 0x20)
   val START_SCAN_RESPONSE = Vector[Int](0xA5, 0x5A, 0x05, 0x00, 0x00, 0x40, 0x81)
   val STOP_SCAN = Vector[Int](0xA5, 0x25)
+
 
   def open_serial() =
     println("Available ports:")
@@ -94,7 +105,7 @@ object Comm:
       val byteArray = data.map[Byte](x => intToByte(x)).toArray
       port.writeBytes(byteArray, byteArray.length) match {
         case numBytesWritten if numBytesWritten >= 0 =>
-          println(s"-> $numBytesWritten bytes written")
+          //println(s"-> $numBytesWritten bytes written")
           true
         case -1 =>
           println(s"${RED}failed to write data (error code ${port.getLastErrorCode})${RESET}")

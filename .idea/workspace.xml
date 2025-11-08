@@ -10,10 +10,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="parannus">
-      <change afterPath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arduino/RadioReceiver/RadioReceiver.ino" beforeDir="false" afterPath="$PROJECT_DIR$/arduino/RadioReceiver/RadioReceiver.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Comm.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Comm.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/UI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/UI.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -208,7 +209,14 @@
       <option name="presentableId" value="LOCAL−00011" />
       <updated>1762344288824</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL−00012" summary="parannus">
+      <option name="closed" value="true" />
+      <created>1762503435358</created>
+      <option name="number" value="LOCAL−00012" />
+      <option name="presentableId" value="LOCAL−00012" />
+      <updated>1762503435359</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="UnknownFeatures">

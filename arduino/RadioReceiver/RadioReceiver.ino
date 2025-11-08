@@ -52,7 +52,7 @@ void sendTestScanPacket()
   Serial.write(buffer, 5);
   //Serial.print("tekstiä");
   delay(50); // ms
-  scanAngle = (scanAngle + 2) % 360;
+  scanAngle = (scanAngle + 1) % 360;
 }
 
 
@@ -90,7 +90,7 @@ void loop()
   {
     char data[32]; // won't read more at once
     radio.read(&data, 32);
-    Serial.write(data, ??);
+    //Serial.write(data, ??);
   }
   /*if Should Send Command {
     radio.stopListening();
