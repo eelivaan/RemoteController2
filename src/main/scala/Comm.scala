@@ -60,6 +60,8 @@ object Comm:
         this.currentSerial = Some(port)
       else
         println(s"${RED}" + "Failed to open port\nError code: " + port.getLastErrorCode.toString + s"${RESET}")
+
+      demo.clear()
     )
 
 
@@ -78,7 +80,7 @@ object Comm:
 
   def read_data(numBytes: Int): Boolean =
     if demo.nonEmpty then
-      this.dataCache ++= demo.take(1); demo.dropInPlace(1)
+      this.dataCache ++= demo.take(3); demo.dropInPlace(3)
       return true
 
     this.currentSerial.exists(port =>
