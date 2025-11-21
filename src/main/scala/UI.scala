@@ -104,7 +104,7 @@ class MyCanvas extends Panel:
         case anyKey =>
           // ajon pysäytys
           controlMap.get(anyKey).foreach(char =>
-            Comm.write_data(Vector(0x01, 0x0))
+            Comm.write_data(Vector(0x01, 0x00))
             VirtualCar.curDriveCommand = None
           )
       }
