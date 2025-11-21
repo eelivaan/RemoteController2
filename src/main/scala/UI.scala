@@ -99,12 +99,12 @@ class MyCanvas extends Panel:
         case Key.Escape =>
           // lopeta sovellus
           UI.quit()
-        case Key.Space =>
+        case Key.Space if !VirtualCar.scanning =>
           Comm.write_data(Comm.START_SCAN)
         case anyKey =>
           // ajon pysäytys
           controlMap.get(anyKey).foreach(char =>
-            Comm.write_data(Vector(0x02))
+            Comm.write_data(Vector(0x01, 0x0))
             VirtualCar.curDriveCommand = None
           )
       }

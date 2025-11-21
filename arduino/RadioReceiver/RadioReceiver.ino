@@ -28,6 +28,9 @@ void setup()
   Serial.begin(115200);
   Serial.setTimeout(100); // ms
 
+  pinMode(25, OUTPUT);
+  digitalWrite(25, LOW);
+
 #ifdef ENABLE_RADIO
   radio.begin();
   radio.openWritingPipe(addressW);
@@ -58,23 +61,31 @@ void sendTestScanPacket()
 
 void loop()
 {
-  if (Serial.available() > 0) 
+  if (Serial.available() >= 2) 
   {
     //char buffer[64]; // ESP32 Serial Data Cache is 64 bytes
     //const int bytes_read = Serial.readBytes(buffer, 64);
-    switch (Serial.read()) {
-    case 0x20: {
-      const byte response[7] = { 0xA5, 0x5A, 0x05, 0x00, 0x00, 0x40, 0x81 };
-      Serial.write(response, 7);
-      bScanning = true;
-     } break;
-
-    case 0x25:
-      bScanning = false;
-      break;
-
-    default:
-      break;
+    const int cmdType = Serial.read();
+    // Lidar commands
+    if (cmdType == 0xA5)
+    {
+      const int cmd = Serial.read();
+      if (cmd == 0x20) {
+        const byte response[7] = { 0xA5, 0x5A, 0x05, 0x00, 0x00, 0x40, 0x81 };
+        Serial.write(response, 7);
+        bScanning = true;        
+      } else if (cmd == 0x25) {
+        bScanning = false;
+      }
+    // driving commands
+    } else if (cmdType == 0x01) 
+    {
+      const int cmd = Serial.read();
+      if (cmd == 'w') {
+        digitalWrite(25, HIGH);
+      } else {
+        digitalWrite(25, LOW);
+      }
     }
   }
 
