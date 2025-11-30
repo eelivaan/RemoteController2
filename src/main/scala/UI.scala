@@ -190,28 +190,40 @@ object UI extends SimpleSwingApplication:
 
     // vastaanota dataa Serialista
     if Comm.data_available && Comm.read_data(100) then
-      mprint("") // päivitys
-      if !VirtualCar.scanning then
-        // etsi scan response
-        Comm.dataCache.sliding(7).indexOf(Comm.START_SCAN_RESPONSE) match {
-          case index if index >= 0 =>
-            VirtualCar.scanning = true
-            println("Scan start confirmed")
-            mprint( Comm.dataCache.take(index + 7) )
-            Comm.dataCache.dropInPlace(index + 7)
-            mprint(" (scan started)\n")
-          case _ =>
-            ()
-        }
-      if VirtualCar.scanning then
-        // lue ja parsi skannauspaketteja niin monta kuin löytyy
-        while Comm.dataCache.length >= 5 do
-          val scanPacket = Comm.dataCache.take(5); Comm.dataCache.dropInPlace(5)
-          val angledeg: Int = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64
-          val distmm: Int = (scanPacket(4)<<8 | scanPacket(3)) / 4
-          mprint( scanPacket )
-          mprint(s" (${angledeg} deg ${distmm} mm)\n")
-          canvas.add_measurement(angledeg, distmm / 10.0)
+      mprint("") // monitorin päivitys
+
+      // etsi ensimmäinen datapaketti joka alkaa 0xA7,0x01
+      Comm.dataCache.sliding(2).indexOf(Vector(0xA7, 0x01)) match {
+        case index if index >= 0 =>
+          Comm.dataCache.dropInPlace(index)  // poista turhat tavut alusta
+          val packet = Comm.dataCache.take(32)
+          if packet.length >= 32 then
+            Comm.dataCache.dropInPlace(32)
+            mprint(" packet:\n")
+            mprint(packet)
+            mprint("\n")
+
+            //         0xA7 = packet(0)
+            //         0x01 = packet(1)
+            val scan_id     = packet(2) // increments per full scan
+            val fragment_id = packet(3) // increments per fragment
+            //val flags       = packet(4) // bit0: is_last
+            val payload_len = packet(4) // 0..24
+            val crc: Int    = packet(5) << 8 | packet(6)  // (16bit) CRC16-CCITT over header-with-zeroed-crc + payload
+            val scanPackets = packet.drop(7)  // 24/25? bytes
+
+            // lue ja parsi skannauspaketteja niin monta kuin löytyy
+            while scanPackets.length >= 5 do
+              val scanPacket = scanPackets.take(5); scanPackets.dropInPlace(5)
+              val angledeg: Int = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64
+              val distmm: Int = (scanPacket(4)<<8 | scanPacket(3)) / 4
+              mprint("  ")
+              mprint( scanPacket )
+              mprint(s" (${angledeg} deg ${distmm} mm)\n")
+              canvas.add_measurement(angledeg, distmm / 10.0)
+          end if
+        case _ =>
+      }
 
     //canvas.add_measurement(tempCounter, Random.between(150,400))
     //tempCounter = (tempCounter+angular_resolution) % 360

@@ -9,7 +9,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="parannus" />
+    <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="parannus">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Comm.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Comm.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/UI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/UI.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/main.scala" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -63,7 +69,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.scala.root&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -107,9 +113,30 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="REPL for RemoteController.main" type="ScalaScriptConsoleRunConfiguration" factoryName="Enhanced Scala REPL" temporary="true" show_console_on_std_err="false" show_console_on_std_out="false">
+      <module name="RemoteController.main" />
+      <option name="allowRunningInParallel" value="false" />
+      <option name="envFilePaths">
+        <list />
+      </option>
+      <option name="environmentVariables">
+        <map />
+      </option>
+      <option name="javaOptions" value="" />
+      <option name="myConsoleArgs" value="-usejavacp " />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <option name="workingDirectory" value="$PROJECT_DIR$/.idea/modules/RemoteController" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.UI" />
+        <item itemvalue="Scala REPL.REPL for RemoteController.main" />
         <item itemvalue="Application.main" />
       </list>
     </recent_temporary>
@@ -231,7 +258,14 @@
       <option name="presentableId" value="LOCAL−00015" />
       <updated>1763723476245</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL−00016" summary="parannus">
+      <option name="closed" value="true" />
+      <created>1763723529057</created>
+      <option name="number" value="LOCAL−00016" />
+      <option name="presentableId" value="LOCAL−00016" />
+      <updated>1763723529057</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="UnknownFeatures">

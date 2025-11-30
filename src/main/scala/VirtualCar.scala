@@ -1,7 +1,7 @@
 
 object VirtualCar:
 
-  var scanning: Boolean = false
+  var scanning: Boolean = true
 
   var curDriveCommand: Option[Char] = None
 

@@ -9,14 +9,16 @@ def intToByte(x: Int): Byte = x.toByte
 
 def byteString(x: Iterable[Int]) = x.map(v => f"0x${v}%02X").mkString(" ")
 
-val demo = ListBuffer[Int]() /**/
+val demo = ListBuffer[Int]()
   ++ ListBuffer[Int](1,2,3,4,
-  0xA5, 0x5A, 0x05, 0x00, 0x00, 0x40, 0x81,
-  0,1*64<<1|1,0,100*40,0,
-  0,45*64<<1|1,0,150*40,0,
-  0,90*64<<1|1,0,200*40,0)
-  ++ (for i <- (180 to 270) yield Vector(0,i*64<<1|1,0,250*40,0)).flatten
-  ++ ListBuffer(0x08, 0x09)
+  0xA7,
+  0x01,
+  0x0,
+  0x0,
+  // 0x0,
+  24,
+  0xFF, 0xFF)
+  ++ (for i <- (0 to 20 by 5) yield Vector(0,i*64<<1|1,0,250*40,0)).flatten
 /**/
 
 
@@ -80,7 +82,7 @@ object Comm:
 
   def read_data(numBytes: Int): Boolean =
     if demo.nonEmpty then
-      this.dataCache ++= demo.take(3); demo.dropInPlace(3)
+      this.dataCache ++= demo.take(1); demo.dropInPlace(1)
       return true
 
     this.currentSerial.exists(port =>
