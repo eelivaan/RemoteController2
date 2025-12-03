@@ -25,7 +25,8 @@ int scanAngle = 0;
 
 void setup() 
 {
-  Serial.begin(115200);
+  //Serial.begin(115200);
+  Serial.begin(1000000);
   Serial.setTimeout(100); // ms
 
   pinMode(25, OUTPUT);

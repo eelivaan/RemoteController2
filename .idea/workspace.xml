@@ -11,10 +11,9 @@
   <component name="ChangeListManager">
     <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="parannus">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arduino/RadioReceiver/RadioReceiver.ino" beforeDir="false" afterPath="$PROJECT_DIR$/arduino/RadioReceiver/RadioReceiver.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Comm.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Comm.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/UI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/UI.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/main.scala" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,7 +135,6 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.UI" />
-        <item itemvalue="Scala REPL.REPL for RemoteController.main" />
         <item itemvalue="Application.main" />
       </list>
     </recent_temporary>
@@ -265,7 +263,14 @@
       <option name="presentableId" value="LOCAL−00016" />
       <updated>1763723529057</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL−00017" summary="parannus">
+      <option name="closed" value="true" />
+      <created>1764525443088</created>
+      <option name="number" value="LOCAL−00017" />
+      <option name="presentableId" value="LOCAL−00017" />
+      <updated>1764525443088</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="UnknownFeatures">

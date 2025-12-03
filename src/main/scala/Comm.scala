@@ -9,7 +9,7 @@ def intToByte(x: Int): Byte = x.toByte
 
 def byteString(x: Iterable[Int]) = x.map(v => f"0x${v}%02X").mkString(" ")
 
-val demo = ListBuffer[Int]()
+val demo = ListBuffer[Int]() /*
   ++ ListBuffer[Int](1,2,3,4,
   0xA7,
   0x01,
@@ -19,7 +19,7 @@ val demo = ListBuffer[Int]()
   24,
   0xFF, 0xFF)
   ++ (for i <- (0 to 20 by 5) yield Vector(0,i*64<<1|1,0,250*40,0)).flatten
-/**/
+*/
 
 
 object Comm:
@@ -57,7 +57,8 @@ object Comm:
       if port.isOpen then
         println(s"${GREEN}" + "port <" + port.getSystemPortName + "> opened" + s"${RESET}")
         // tärkeät asetukset
-        port.setBaudRate(115200)
+        //port.setBaudRate(115200)
+        port.setBaudRate(1000000)
         port.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 3000, 1000)
         this.currentSerial = Some(port)
       else

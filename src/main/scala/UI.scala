@@ -5,6 +5,7 @@ import javax.imageio.ImageIO
 import java.awt.{Font, Image, Polygon}
 import java.io.File
 import scala.math.*
+import scala.collection.mutable.Queue
 
 val angular_resolution: Double = 1.0 // astetta
 
@@ -34,12 +35,10 @@ class MyCanvas extends Panel:
   val carImg = ImageIO.read(new File("car.png"))
   var mapScale = 1.0
 
-  // viimeisimmät mittaukset "rengaspuskurina"
-  private val measurements: Array[(Double,Double)] = Array.fill(360)((0,0))
-  private var index = 0
-  def add_measurement(angleDegrees: Double, distCm: Double) =
-    this.measurements(index) = ((angleDegrees - 90).toRadians, distCm)
-    index = (index + 1) % this.measurements.length
+  // viimeisimmät mittaukset
+  val measurements = Queue[(Double,Double)]()
+  def add_measurement(angleDegrees: Int, distCm: Double) =
+    this.measurements.enqueue(((angleDegrees - 90.0).toRadians, distCm))
 
   /** sentit pikseleiksi */
   def cm2p(x: Double) = (x * mapScale).toInt
@@ -77,10 +76,11 @@ class MyCanvas extends Panel:
     g.drawImage(carImg, cx-hw,cy-hh, hw*2,hh*2, null)
 
     // scan line
-    //val t = System.currentTimeMillis() / 1000.0
-    val t = this.measurements(max(0,this.index-1))._1
-    g.setColor(new Color(0,150,0))
-    g.drawLine(cx,cy, (cx + cos(t)*200).toInt, (cy + sin(t)*200).toInt)
+    if this.measurements.nonEmpty then
+      val t = System.currentTimeMillis() / 1000.0
+      //val t = this.measurements.last._1
+      g.setColor(new Color(0,150,0))
+      g.drawLine(cx,cy, (cx + cos(t)*200).toInt, (cy + sin(t)*200).toInt)
   end paint
 
   // näppäimistötapahtumat
@@ -90,7 +90,7 @@ class MyCanvas extends Panel:
       // ajokomento
       if VirtualCar.curDriveCommand.isEmpty then
         controlMap.get(key).foreach(char =>
-          Comm.write_data(Vector(0x01, char.toInt))
+          Comm.write_data(Vector(char.toInt))
           VirtualCar.curDriveCommand = Some(char)
         )
 
@@ -100,11 +100,11 @@ class MyCanvas extends Panel:
           // lopeta sovellus
           UI.quit()
         case Key.Space if !VirtualCar.scanning =>
-          Comm.write_data(Comm.START_SCAN)
+          //Comm.write_data(Comm.START_SCAN)
         case anyKey =>
           // ajon pysäytys
           controlMap.get(anyKey).foreach(char =>
-            Comm.write_data(Vector(0x01, 0x00))
+            Comm.write_data(Vector(0x00))
             VirtualCar.curDriveCommand = None
           )
       }
@@ -134,7 +134,7 @@ object UI extends SimpleSwingApplication:
   // alapaneeli
   val info = Label("No connection")
   val help = Label("Use WASD or Arrow Keys to control")
-  val visChooser = ComboBox(Vector("Polygons", "Dots"))
+  val visChooser = ComboBox(Vector("Dots", "Polygons"))
   visChooser.focusable = false
   val panel2 = FlowPanel(info, help, visChooser)
   panel.contents += panel2
@@ -159,7 +159,7 @@ object UI extends SimpleSwingApplication:
   tickTimer.start()
 
   var tempCounter = 0
-  serialMonitor.visible = true
+  serialMonitor.visible = false
   var bufferedSerialText: String = ""
 
   // pääikkuna (anonyymi luokka johdettu MainFrame:sta)
@@ -189,46 +189,47 @@ object UI extends SimpleSwingApplication:
     }
 
     // vastaanota dataa Serialista
-    if Comm.data_available && Comm.read_data(100) then
+    if Comm.data_available && Comm.read_data(1000) then
       mprint("") // monitorin päivitys
 
-      // etsi ensimmäinen datapaketti joka alkaa 0xA7,0x01
-      Comm.dataCache.sliding(2).indexOf(Vector(0xA7, 0x01)) match {
-        case index if index >= 0 =>
-          Comm.dataCache.dropInPlace(index)  // poista turhat tavut alusta
-          val packet = Comm.dataCache.take(32)
-          if packet.length >= 32 then
-            Comm.dataCache.dropInPlace(32)
-            mprint(" packet:\n")
-            mprint(packet)
-            mprint("\n")
+      for i <- (1 to 50) do
+        // etsi ensimmäinen datapaketti joka alkaa 0xA7,0x01
+        Comm.dataCache.sliding(2).indexOf(Vector(0xA7, 0x01)) match {
+          case index if index >= 0 =>
+            Comm.dataCache.dropInPlace(index)  // poista turhat tavut alusta
+            val packet = Comm.dataCache.take(32)
+            if packet.length >= 32 then
+              Comm.dataCache.dropInPlace(32)
+              mprint(" packet:\n")
+              mprint(packet)
+              mprint("\n")
 
-            //         0xA7 = packet(0)
-            //         0x01 = packet(1)
-            val scan_id     = packet(2) // increments per full scan
-            val fragment_id = packet(3) // increments per fragment
-            //val flags       = packet(4) // bit0: is_last
-            val payload_len = packet(4) // 0..24
-            val crc: Int    = packet(5) << 8 | packet(6)  // (16bit) CRC16-CCITT over header-with-zeroed-crc + payload
-            val scanPackets = packet.drop(7)  // 24/25? bytes
+              //         0xA7 = packet(0)
+              //         0x01 = packet(1)
+              val scan_id     = packet(2) // increments per full scan
+              val fragment_id = packet(3) // increments per fragment
+              //val flags       = packet(4) // bit0: is_last
+              val payload_len = packet(4) // 0..25
+              val crc: Int    = packet(5) << 8 | packet(6)  // (16bit) CRC16-CCITT over header-with-zeroed-crc + payload
+              val scanPackets = packet.drop(7)  // 25 bytes
 
-            // lue ja parsi skannauspaketteja niin monta kuin löytyy
-            while scanPackets.length >= 5 do
-              val scanPacket = scanPackets.take(5); scanPackets.dropInPlace(5)
-              val angledeg: Int = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64
-              val distmm: Int = (scanPacket(4)<<8 | scanPacket(3)) / 4
-              mprint("  ")
-              mprint( scanPacket )
-              mprint(s" (${angledeg} deg ${distmm} mm)\n")
-              canvas.add_measurement(angledeg, distmm / 10.0)
-          end if
-        case _ =>
-      }
-
-    //canvas.add_measurement(tempCounter, Random.between(150,400))
-    //tempCounter = (tempCounter+angular_resolution) % 360
+              // lue ja parsi skannauspaketteja niin monta kuin löytyy
+              while scanPackets.length >= 5 do
+                val scanPacket = scanPackets.take(5); scanPackets.dropInPlace(5)
+                val angledeg: Int = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64
+                val distmm: Int = (scanPacket(4)<<8 | scanPacket(3)) / 4
+                mprint("  ")
+                mprint( scanPacket )
+                mprint(s" (${angledeg} deg ${distmm} mm)\n")
+                canvas.add_measurement(angledeg, distmm / 10.0)
+            end if
+          case _ =>
+        }
 
     canvas.repaint()
+
+    while canvas.measurements.length > 360 do
+      canvas.measurements.dequeue()
   end onTick
 
 
