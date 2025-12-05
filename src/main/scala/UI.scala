@@ -35,10 +35,12 @@ class MyCanvas extends Panel:
   val carImg = ImageIO.read(new File("car.png"))
   var mapScale = 1.0
 
-  // viimeisimmät mittaukset
+  // viimeisimmät 360 mittausta
   val measurements = Queue[(Double,Double)]()
-  def add_measurement(angleDegrees: Int, distCm: Double) =
+  def add_measurement(angleDegrees: Double, distCm: Double) =
     this.measurements.enqueue(((angleDegrees - 90.0).toRadians, distCm))
+    if this.measurements.length > 360 then
+      this.measurements.dequeue()
 
   /** sentit pikseleiksi */
   def cm2p(x: Double) = (x * mapScale).toInt
@@ -63,10 +65,10 @@ class MyCanvas extends Panel:
     for (angle,dist) <- this.measurements do if dist > 0 then
       UI.visChooser.selection.index match {
         case 0 =>
-          g.fillPolygon(make_sweep_polygon(cx, cy, cm2p(dist), angle))
-        case 1 =>
           g.drawOval((cx + cos(angle) * cm2p(dist)).toInt - 5,
                      (cy + sin(angle) * cm2p(dist)).toInt - 5, 5,5)
+        case 1 =>
+          g.fillPolygon(make_sweep_polygon(cx, cy, cm2p(dist), angle))
       }
 
     // robotin kuva
@@ -216,7 +218,7 @@ object UI extends SimpleSwingApplication:
               // lue ja parsi skannauspaketteja niin monta kuin löytyy
               while scanPackets.length >= 5 do
                 val scanPacket = scanPackets.take(5); scanPackets.dropInPlace(5)
-                val angledeg: Int = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64
+                val angledeg: Double = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64.0
                 val distmm: Int = (scanPacket(4)<<8 | scanPacket(3)) / 4
                 mprint("  ")
                 mprint( scanPacket )
@@ -227,9 +229,6 @@ object UI extends SimpleSwingApplication:
         }
 
     canvas.repaint()
-
-    while canvas.measurements.length > 360 do
-      canvas.measurements.dequeue()
   end onTick
 
 
@@ -251,6 +250,8 @@ object UI extends SimpleSwingApplication:
         case str: String =>
           bufferedSerialText += str
       }
+      if bufferedSerialText.length > 10000 then
+        bufferedSerialText = bufferedSerialText.takeRight(10000)
       if !serialText.hasFocus then
         serialText.text = bufferedSerialText + byteString(Comm.dataCache)
 
