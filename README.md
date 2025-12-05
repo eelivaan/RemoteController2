@@ -1,10 +1,10 @@
 Kauko-ohjain/käyttöliittymä sähköpajan projektiin
 
-arduino/RadioReceiver.ino sisältää koodin ESP32:lle
-
 src/main/UI.scala sisältää käyttöliittymän
 
 src/main/Comm.scala sisältää kommunikaation
+
+arduino/RadioReceiver.ino sisältää testikoodia ESP32:lle
 
 https://www.slamtec.com/en/Support#rplidar-a-series
 
