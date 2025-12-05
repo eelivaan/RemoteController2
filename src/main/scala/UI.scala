@@ -106,7 +106,7 @@ class MyCanvas extends Panel:
         case anyKey =>
           // ajon pysäytys
           controlMap.get(anyKey).foreach(char =>
-            Comm.write_data(Vector(0x00))
+            Comm.write_data(Vector('e'.toInt))
             VirtualCar.curDriveCommand = None
           )
       }
@@ -202,9 +202,6 @@ object UI extends SimpleSwingApplication:
             val packet = Comm.dataCache.take(32)
             if packet.length >= 32 then
               Comm.dataCache.dropInPlace(32)
-              mprint(" packet:\n")
-              mprint(packet)
-              mprint("\n")
 
               //         0xA7 = packet(0)
               //         0x01 = packet(1)
@@ -214,6 +211,10 @@ object UI extends SimpleSwingApplication:
               val payload_len = packet(4) // 0..25
               val crc: Int    = packet(5) << 8 | packet(6)  // (16bit) CRC16-CCITT over header-with-zeroed-crc + payload
               val scanPackets = packet.drop(7)  // 25 bytes
+
+              mprint(s" packet (id $scan_id):\n")
+              mprint(packet)
+              mprint("\n")
 
               // lue ja parsi skannauspaketteja niin monta kuin löytyy
               while scanPackets.length >= 5 do
@@ -250,8 +251,8 @@ object UI extends SimpleSwingApplication:
         case str: String =>
           bufferedSerialText += str
       }
-      if bufferedSerialText.length > 10000 then
-        bufferedSerialText = bufferedSerialText.takeRight(10000)
+      if bufferedSerialText.length > 1000 then
+        bufferedSerialText = bufferedSerialText.takeRight(1000)
       if !serialText.hasFocus then
         serialText.text = bufferedSerialText + byteString(Comm.dataCache)
 
