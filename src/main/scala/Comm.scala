@@ -2,6 +2,7 @@ import com.fazecast.jSerialComm.*
 import Console.{GREEN, RED, RESET}
 import scala.collection.mutable.ListBuffer
 import scala.io.StdIn.readLine
+import scala.util.Random
 
 // reinterpret cast
 def byteToInt(x: Byte): Int = if x < 0 then 256 + x.toInt else x.toInt
@@ -9,17 +10,21 @@ def intToByte(x: Int): Byte = x.toByte
 
 def byteString(x: Iterable[Int]) = x.map(v => f"0x${v}%02X").mkString(" ")
 
-val demo = ListBuffer[Int]() /*
-  ++ ListBuffer[Int](1,2,3,4,
-  0xA7,
-  0x01,
-  0x0,
-  0x0,
-  // 0x0,
-  24,
-  0xFF, 0xFF)
-  ++ (for i <- (0 to 20 by 5) yield Vector(0,i*64<<1|1,0,250*40,0)).flatten
-*/
+var demo = false
+var demoCounter = 0
+def makeDemoPackage() =
+  ListBuffer[Int](
+    0xA7,
+    0x01,
+    demoCounter,
+    0x0,
+    // 0x0,
+    25,
+    0xFF, 0xFF)
+  ++ (for i <- (0 until 5) yield
+    demoCounter += 1
+    Vector(0, (demoCounter%360)*64<<1|1, 0, Random.between(200,300)*40, 0)).flatten
+
 
 
 object Comm:
@@ -64,7 +69,7 @@ object Comm:
       else
         println(s"${RED}" + "Failed to open port\nError code: " + port.getLastErrorCode.toString + s"${RESET}")
 
-      demo.clear()
+      demo = false
     )
 
 
@@ -76,14 +81,14 @@ object Comm:
 
 
   def data_available: Boolean =
-    if demo.nonEmpty then
+    if demo then
       return true
     this.currentSerial.exists(port => port.bytesAvailable() > 0)
 
 
   def read_data(numBytes: Int): Boolean =
-    if demo.nonEmpty then
-      this.dataCache ++= demo.take(1); demo.dropInPlace(1)
+    if demo then
+      this.dataCache ++= makeDemoPackage()
       return true
 
     this.currentSerial.exists(port =>

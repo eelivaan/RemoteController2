@@ -7,11 +7,10 @@ import java.io.File
 import scala.math.*
 import scala.collection.mutable.Queue
 
-val angular_resolution: Double = 1.0 // astetta
 
-def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double): Polygon =
+def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double, angular_res: Double): Polygon =
   val p = Polygon()
-  val ha = (angular_resolution / 2.0).toRadians + 0.001
+  val ha = (angular_res / 2.0) + 0.001
   val far = 800
   p.addPoint((cx + cos(a-ha) * near).toInt, (cy + sin(a-ha) * near).toInt)
   p.addPoint((cx + cos(a-ha) * far).toInt, (cy + sin(a-ha) * far).toInt)
@@ -62,13 +61,15 @@ class MyCanvas extends Panel:
 
     // havainnot
     g.setColor(new Color(100,100,100))
+    var (prevAngle,prevDist) = this.measurements.headOption.getOrElse((0.0,0.0))
     for (angle,dist) <- this.measurements do if dist > 0 then
       UI.visChooser.selection.index match {
         case 0 =>
           g.drawOval((cx + cos(angle) * cm2p(dist)).toInt - 5,
                      (cy + sin(angle) * cm2p(dist)).toInt - 5, 5,5)
         case 1 =>
-          g.fillPolygon(make_sweep_polygon(cx, cy, cm2p(dist), angle))
+          g.fillPolygon(make_sweep_polygon(cx, cy, cm2p(dist), angle, (angle - prevAngle).abs))
+          prevAngle = angle
       }
 
     // robotin kuva
@@ -162,7 +163,7 @@ object UI extends SimpleSwingApplication:
 
   var tempCounter = 0
   serialMonitor.visible = false
-  var bufferedSerialText: String = ""
+  var bufferedSerialText = StringBuilder(25100)
 
   // pääikkuna (anonyymi luokka johdettu MainFrame:sta)
   def top = new MainFrame():
@@ -212,7 +213,7 @@ object UI extends SimpleSwingApplication:
               val crc: Int    = packet(5) << 8 | packet(6)  // (16bit) CRC16-CCITT over header-with-zeroed-crc + payload
               val scanPackets = packet.drop(7)  // 25 bytes
 
-              mprint(s" packet (id $scan_id):\n")
+              mprint(s" packet (scan $scan_id fragment $fragment_id):\n")
               mprint(packet)
               mprint("\n")
 
@@ -247,14 +248,14 @@ object UI extends SimpleSwingApplication:
     if serialMonitor.visible then
       input match {
         case bytes: Iterable[Int] =>
-          bufferedSerialText += byteString(bytes)
+          bufferedSerialText ++= byteString(bytes)
         case str: String =>
-          bufferedSerialText += str
+          bufferedSerialText ++= str
       }
-      if bufferedSerialText.length > 1000 then
-        bufferedSerialText = bufferedSerialText.takeRight(1000)
+      if bufferedSerialText.length > 25000 then
+        bufferedSerialText.delete(0, bufferedSerialText.length - 25000)
       if !serialText.hasFocus then
-        serialText.text = bufferedSerialText + byteString(Comm.dataCache)
+        serialText.text = bufferedSerialText.result() + byteString(Comm.dataCache)
 
 end UI
 

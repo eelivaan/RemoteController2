@@ -11,6 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="parannus">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Comm.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Comm.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/UI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/UI.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -282,7 +283,14 @@
       <option name="presentableId" value="LOCAL−00019" />
       <updated>1764933600133</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL−00020" summary="parannus">
+      <option name="closed" value="true" />
+      <created>1764936833687</created>
+      <option name="number" value="LOCAL−00020" />
+      <option name="presentableId" value="LOCAL−00020" />
+      <updated>1764936833687</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="UnknownFeatures">
