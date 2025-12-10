@@ -290,7 +290,14 @@
       <option name="presentableId" value="LOCAL−00020" />
       <updated>1764936833687</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL−00021" summary="parannus">
+      <option name="closed" value="true" />
+      <created>1764959212872</created>
+      <option name="number" value="LOCAL−00021" />
+      <option name="presentableId" value="LOCAL−00021" />
+      <updated>1764959212872</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="UnknownFeatures">

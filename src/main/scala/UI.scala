@@ -19,10 +19,10 @@ def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double, angular_res: D
   /*return*/ p
 
 val controlMap = Map[Key.Value, Char](
-  Key.W -> 'w', Key.Up -> 'w',
-  Key.S -> 's', Key.Down -> 's',
-  Key.A -> 'a', Key.Left -> 'a',
-  Key.D -> 'd', Key.Right -> 'd',
+  Key.W -> 'v', Key.Up -> 'v',
+  Key.S -> 'w', Key.Down -> 'w',
+  Key.A -> 'x', Key.Left -> 'x',
+  Key.D -> 'y', Key.Right -> 'y',
 )
 
 /**
@@ -107,7 +107,7 @@ class MyCanvas extends Panel:
         case anyKey =>
           // ajon pysäytys
           controlMap.get(anyKey).foreach(char =>
-            Comm.write_data(Vector('e'.toInt))
+            Comm.write_data(Vector('z'.toInt))
             VirtualCar.curDriveCommand = None
           )
       }
@@ -231,6 +231,8 @@ object UI extends SimpleSwingApplication:
         }
 
     canvas.repaint()
+    if canvas.measurements.nonEmpty then
+      canvas.measurements.dequeue()
   end onTick
 
 
