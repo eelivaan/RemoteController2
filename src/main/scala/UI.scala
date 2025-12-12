@@ -18,6 +18,7 @@ def make_sweep_polygon(cx: Int, cy: Int, near: Double, a: Double, angular_res: D
   p.addPoint((cx + cos(a+ha) * near).toInt, (cy + sin(a+ha) * near).toInt)
   /*return*/ p
 
+
 val controlMap = Map[Key.Value, Char](
   Key.W -> 'v', Key.Up -> 'v',
   Key.S -> 'w', Key.Down -> 'w',
@@ -26,7 +27,7 @@ val controlMap = Map[Key.Value, Char](
 )
 
 /**
- * Kustomoitu Panel joka renderöi Lidarin havainnot
+ * Kustomoitu Panel joka piirtää Lidarin havainnot
  */
 class MyCanvas extends Panel:
   preferredSize = new Dimension(700,600)
@@ -36,6 +37,7 @@ class MyCanvas extends Panel:
 
   // viimeisimmät 360 mittausta
   val measurements = Queue[(Double,Double)]()
+
   def add_measurement(angleDegrees: Double, distCm: Double) =
     this.measurements.enqueue(((angleDegrees - 90.0).toRadians, distCm))
     if this.measurements.length > 360 then
@@ -80,7 +82,7 @@ class MyCanvas extends Panel:
 
     // scan line
     if this.measurements.nonEmpty then
-      val t = System.currentTimeMillis() / 1000.0
+      val t = System.currentTimeMillis() / 700.0
       //val t = this.measurements.last._1
       g.setColor(new Color(0,150,0))
       g.drawLine(cx,cy, (cx + cos(t)*200).toInt, (cy + sin(t)*200).toInt)
@@ -113,6 +115,7 @@ class MyCanvas extends Panel:
       }
 
     case MouseWheelMoved(_,_,_, value) =>
+      // kartan zoomaus
       this.mapScale *= 1.0 + value*0.05
   }
 
@@ -178,6 +181,7 @@ object UI extends SimpleSwingApplication:
       case KeyReleased(_,key,_,_) if key == Key.Enter =>
         serialMonitor.visible = !serialMonitor.visible
     }
+  end top
 
 
   private def onTick() =
@@ -195,7 +199,7 @@ object UI extends SimpleSwingApplication:
     if Comm.data_available && Comm.read_data(1000) then
       mprint("") // monitorin päivitys
 
-      for i <- (1 to 50) do
+      for i <- (1 to 100) do
         // etsi ensimmäinen datapaketti joka alkaa 0xA7,0x01
         Comm.dataCache.sliding(2).indexOf(Vector(0xA7, 0x01)) match {
           case index if index >= 0 =>
@@ -208,7 +212,6 @@ object UI extends SimpleSwingApplication:
               //         0x01 = packet(1)
               val scan_id     = packet(2) // increments per full scan
               val fragment_id = packet(3) // increments per fragment
-              //val flags       = packet(4) // bit0: is_last
               val payload_len = packet(4) // 0..25
               val crc: Int    = packet(5) << 8 | packet(6)  // (16bit) CRC16-CCITT over header-with-zeroed-crc + payload
               val scanPackets = packet.drop(7)  // 25 bytes
@@ -217,7 +220,7 @@ object UI extends SimpleSwingApplication:
               mprint(packet)
               mprint("\n")
 
-              // lue ja parsi skannauspaketteja niin monta kuin löytyy
+              // lue ja parsi skannauspaketteja (5 tavua) niin monta kuin löytyy
               while scanPackets.length >= 5 do
                 val scanPacket = scanPackets.take(5); scanPackets.dropInPlace(5)
                 val angledeg: Double = (scanPacket(2)<<7 | scanPacket(1)>>1) / 64.0
@@ -231,6 +234,8 @@ object UI extends SimpleSwingApplication:
         }
 
     canvas.repaint()
+
+    // vanhat skannaukset unohdetaan hiljalleen
     if canvas.measurements.nonEmpty then
       canvas.measurements.dequeue()
   end onTick
@@ -245,7 +250,7 @@ object UI extends SimpleSwingApplication:
     super.quit()
 
 
-  /** print to monitor */
+  // print to monitor
   def mprint(input: Iterable[Int] | String): Unit =
     if serialMonitor.visible then
       input match {

@@ -50,7 +50,7 @@ object Comm:
     for (port,i) <- availPorts.zipWithIndex do
       println(s"[$i] " + port.getDescriptivePortName)
 
-    // pyydä käyttäjää valitsemaan portti
+    // pyydä käyttäjää valitsemaan portti, jos useita vaihtoehtoja
     var selectedPort = 0
     if availPorts.length > 1 then
       selectedPort = readLine("Select port: ").toInt
@@ -62,8 +62,8 @@ object Comm:
       if port.isOpen then
         println(s"${GREEN}" + "port <" + port.getSystemPortName + "> opened" + s"${RESET}")
         // tärkeät asetukset
-        //port.setBaudRate(115200)
         port.setBaudRate(1000000)
+        //port.setBaudRate(115200)
         port.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 3000, 1000)
         this.currentSerial = Some(port)
       else
