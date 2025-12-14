@@ -10,7 +10,7 @@ def intToByte(x: Int): Byte = x.toByte
 
 def byteString(x: Iterable[Int]) = x.map(v => f"0x${v}%02X").mkString(" ")
 
-var demo = false
+var demo = true
 var demoCounter = 0
 def makeDemoPackage() =
   ListBuffer[Int](

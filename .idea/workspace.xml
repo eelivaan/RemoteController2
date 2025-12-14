@@ -9,11 +9,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="parannus">
+    <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="viimeistely">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Comm.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Comm.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/UI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/UI.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/VirtualCar.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -305,7 +304,14 @@
       <option name="presentableId" value="LOCAL−00022" />
       <updated>1765363805572</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL−00023" summary="viimeistely">
+      <option name="closed" value="true" />
+      <created>1765523422933</created>
+      <option name="number" value="LOCAL−00023" />
+      <option name="presentableId" value="LOCAL−00023" />
+      <updated>1765523422933</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -326,6 +332,7 @@
     <MESSAGE value="Eka commit" />
     <MESSAGE value="toka" />
     <MESSAGE value="parannus" />
-    <option name="LAST_COMMIT_MESSAGE" value="parannus" />
+    <MESSAGE value="viimeistely" />
+    <option name="LAST_COMMIT_MESSAGE" value="viimeistely" />
   </component>
 </project>
