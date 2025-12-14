@@ -30,7 +30,7 @@ val controlMap = Map[Key.Value, Char](
  * Kustomoitu Panel joka piirtää Lidarin havainnot
  */
 class MyCanvas extends Panel:
-  preferredSize = new Dimension(700,700)
+  preferredSize = new Dimension(700,600)
   focusable = true
   val carImg = ImageIO.read(new File("car.png"))
   var mapScale = 1.0
@@ -178,7 +178,7 @@ object UI extends SimpleSwingApplication:
     contents = panel
     minimumSize = new Dimension(500,400)
     centerOnScreen()
-    maximize()
+    //maximize()
     listenTo(this, canvas.keys)
     reactions += {
       case e: WindowClosing =>
