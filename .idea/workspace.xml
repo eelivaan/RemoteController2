@@ -11,7 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="28cf4d3e-cca8-4e4e-b5e8-942efc5f1f05" name="Changes" comment="viimeistely">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/UI.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/UI.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arduino/RadioReceiver/RadioReceiver.ino" beforeDir="false" afterPath="$PROJECT_DIR$/arduino/RadioReceiver/RadioReceiver.ino" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -317,7 +317,14 @@
       <option name="presentableId" value="LOCAL−00024" />
       <updated>1765707017686</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL−00025" summary="viimeistely">
+      <option name="closed" value="true" />
+      <created>1765707307873</created>
+      <option name="number" value="LOCAL−00025" />
+      <option name="presentableId" value="LOCAL−00025" />
+      <updated>1765707307873</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="UnknownFeatures">
