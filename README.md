@@ -7,6 +7,9 @@ https://github.com/user-attachments/assets/0ba97508-4679-41c5-8681-06d696ee94a0
 - src/main/Comm.scala sisältää kommunikaatiorajapinnan
 - arduino/RadioReceiver.ino sisältää testikoodia ESP32:lle
 
+Projektin dokumentaatio:
+https://wiki.aalto.fi/x/Co3bF
+
 Lähdekoodi auton mikrokontrolleriin:
 https://github.com/joevento/rc_car_obc
 
