@@ -13,5 +13,5 @@ https://github.com/joevento/rc_car_obc
 Lidar-sensorin dokumentaatio:
 https://www.slamtec.com/en/Support#rplidar-a-series
 
-Serial Communication toteutettiin tällä kirjastolla:
+Sarjakommunikaatio ohjaussovelluksessa toteutettiin tämän kirjaston avulla:
 https://fazecast.github.io/jSerialComm/
